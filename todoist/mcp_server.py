@@ -620,6 +620,50 @@ def create_project(
 
 
 # --------------------------------------------------------------------------- #
+# Write Tools — Label Management
+# --------------------------------------------------------------------------- #
+
+
+@mcp.tool()
+def create_label(
+    name: str,
+    color: str | None = None,
+    is_favorite: bool | None = None,
+) -> dict:
+    """
+    Create a new Todoist label. Labels are useful for GTD contexts
+    (e.g., @phone, @computer, @errands) and for tagging tasks across
+    projects.
+
+    Args:
+        name: The label name (required).
+        color: Label color. Todoist supports colors like "berry_red",
+               "red", "orange", "yellow", "olive_green", "lime_green",
+               "green", "mint_green", "teal", "sky_blue", "light_blue",
+               "blue", "grape", "violet", "lavender", "magenta",
+               "salmon", "charcoal", "grey", "taupe".
+        is_favorite: If True, the label is marked as a favorite.
+
+    Returns:
+        The created label dict with id, name, color, and is_favorite fields.
+    """
+    api = _get_api()
+
+    kwargs: dict = {"name": name}
+    if color is not None:
+        kwargs["color"] = color
+    if is_favorite is not None:
+        kwargs["is_favorite"] = is_favorite
+
+    try:
+        label = api.add_label(**kwargs)
+    except Exception as e:
+        return {"error": f"Failed to create label: {e}"}
+
+    return _label_to_dict(label)
+
+
+# --------------------------------------------------------------------------- #
 # Supporting Read Tools
 # --------------------------------------------------------------------------- #
 

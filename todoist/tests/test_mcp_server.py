@@ -1224,3 +1224,60 @@ class TestCreateProject:
 
         assert "error" in result
         assert "quota exceeded" in result["error"]
+
+
+# --------------------------------------------------------------------------- #
+# create_label (MCP tool)
+# --------------------------------------------------------------------------- #
+
+
+class TestCreateLabel:
+    """Tests for the create_label MCP tool."""
+
+    def test_creates_basic_label(self):
+        from todoist.mcp_server import create_label
+
+        lab = make_label(label_id="l10", name="Errands", color="charcoal", is_favorite=False)
+
+        mock_api = MagicMock()
+        mock_api.add_label.return_value = lab
+
+        with patch("todoist.mcp_server._get_api", return_value=mock_api):
+            result = create_label(name="Errands")
+
+        mock_api.add_label.assert_called_once_with(name="Errands")
+        assert result["id"] == "l10"
+        assert result["name"] == "Errands"
+
+    def test_creates_label_with_all_fields(self):
+        from todoist.mcp_server import create_label
+
+        lab = make_label(
+            label_id="l11", name="@phone", color="sky_blue", is_favorite=True
+        )
+
+        mock_api = MagicMock()
+        mock_api.add_label.return_value = lab
+
+        with patch("todoist.mcp_server._get_api", return_value=mock_api):
+            result = create_label(name="@phone", color="sky_blue", is_favorite=True)
+
+        mock_api.add_label.assert_called_once_with(
+            name="@phone",
+            color="sky_blue",
+            is_favorite=True,
+        )
+        assert result["color"] == "sky_blue"
+        assert result["is_favorite"] is True
+
+    def test_api_error_returns_error(self):
+        from todoist.mcp_server import create_label
+
+        mock_api = MagicMock()
+        mock_api.add_label.side_effect = Exception("duplicate name")
+
+        with patch("todoist.mcp_server._get_api", return_value=mock_api):
+            result = create_label(name="Fail")
+
+        assert "error" in result
+        assert "duplicate name" in result["error"]
