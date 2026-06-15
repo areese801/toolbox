@@ -38,7 +38,8 @@ TODO.md
 docs/
 
 # Skill artifacts (code review reports, etc.)
-.agent/
+.agent/*
+!.agent/skills/
 
 
 # Ignore jupyter artifacts
